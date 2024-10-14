@@ -1,0 +1,30 @@
+.container{
+    display: flex;
+    justify-content: space-evenly;
+    padding: 1rem 0rem;
+    margin-bottom: 1rem;
+    background-color: rgb(227, 227, 227);
+}
+
+
+.viewContainer ,.filterContainer {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+}
+
+.viewContainer > select,.filterContainer> input {
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    outline: none;
+}
+
+h4 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+
+

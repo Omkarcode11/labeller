@@ -1,110 +1,110 @@
-import React, { useState } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
+import React, { useState, useEffect, useCallback } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
+import axios from "axios";
+import { key } from "../../utils/constant";
+import classes from "./FileGrid.module.css";
 
 interface FileGridProps {
-  filters: string[];
+  filters: string;
 }
 
 const FileGrid: React.FC<FileGridProps> = ({ filters }) => {
-  const imageUrls: string[] = [
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    'https://picsum.photos/200/',// Example image URL
-    // Add more image URLs as needed
-  ].map((ele,i)=>ele+(300+i));
-
-  const [images, setImages] = useState<string[]>(imageUrls.slice(0, 5));
+  const [images, setImages] = useState<string[]>([]);
+  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [debouncedFilters, setDebouncedFilters] = useState<string>(filters); // Track debounced filters
 
-  const fetchMoreImages = () => {
-    if (images.length >= imageUrls.length) {
-      setHasMore(false);
-      return;
-    }
+  const API_KEY = key;
+  const PER_PAGE = 15;
 
-    const newImages = imageUrls.slice(images.length, images.length + 5);
-    setImages((prevImages) => [...prevImages, ...newImages]);
+  const debounce = (func: Function, delay: number) => {
+    let timeoutId: any;
+    return (...args: any[]) => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
   };
 
-  const filteredImages = images.filter((img) => {
-    if (filters.length === 0) return true;
-    return filters.some((filter) => img.toLowerCase().includes(filter.toLowerCase()));
-  });
+  // Function to fetch images from the Pexels API
+  const fetchImages = useCallback(async () => {
+    try {
+      const query = debouncedFilters.length > 0 ? debouncedFilters : "nature"; // default query if no filter provided
+
+      const response = await axios.get("https://api.pexels.com/v1/search", {
+        headers: {
+          Authorization: API_KEY,
+        },
+        params: {
+          query, // search term
+          page,
+          per_page: PER_PAGE,
+        },
+      });
+
+      const newImages = response.data.photos.map(
+        (photo: any) => photo.src.medium
+      );
+      setImages((prevImages) => [...prevImages, ...newImages]);
+
+      if (newImages.length < PER_PAGE) {
+        setHasMore(false); // No more images to load
+      }
+    } catch (error) {
+      console.error("Error fetching images:", error);
+      setHasMore(false);
+    }
+  }, [debouncedFilters, page]);
+
+  // Debounced update for filters
+  const updateDebouncedFilters = useCallback(
+    debounce((newFilters: string) => {
+      setDebouncedFilters(newFilters);
+      setPage(1); // Reset page when filters change
+      setImages([]); // Clear the images
+      setHasMore(true); // Reset infinite scroll
+    }, 500), // 500ms delay for debounce
+    []
+  );
+
+  // Use effect to trigger debounce whenever filters change
+  useEffect(() => {
+    updateDebouncedFilters(filters);
+  }, [filters, updateDebouncedFilters]);
+
+  // Fetch images when page or debounced filters change
+  useEffect(() => {
+    fetchImages();
+  }, [debouncedFilters, page, fetchImages]);
+
+  // Fetch more images when scrolled
+  const fetchMoreImages = () => {
+    setPage((prevPage) => prevPage + 1);
+  };
 
   return (
-    <InfiniteScroll
-      dataLength={filteredImages.length}
-      next={fetchMoreImages}
-      hasMore={hasMore}
-      loader={<h4>Loading...</h4>}
-      endMessage={<p>No more images</p>}
-    >
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
-        {filteredImages.map((img, index) => (
-          <div key={index} style={{ border: '1px solid #ddd', padding: '10px' }}>
-            <img src={img} alt={`Image ${index + 1}`} style={{ width: '100%' }} />
-          </div>
-        ))}
-      </div>
-    </InfiniteScroll>
+    <div className={classes.container}>
+      <InfiniteScroll
+        dataLength={images.length}
+        next={fetchMoreImages}
+        hasMore={hasMore}
+        loader={<h4>Loading...</h4>}
+        endMessage={<p>No more images</p>}
+      >
+        <div className={classes.gridContainer}>
+          {images.map((img, index) => (
+            <div key={index} className={classes.wrapper}>
+              <img
+                src={img}
+                alt={`Image ${index + 1}`}
+                className={classes.image}
+              />
+            </div>
+          ))}
+        </div>
+      </InfiniteScroll>
+    </div>
   );
 };
 
