@@ -3,13 +3,11 @@ import axios from "axios";
 import { key } from "../../utils/constant"; // Import your Pexels API key
 
 interface ClusterViewProps {
-  filters: string;
   setFilters: React.Dispatch<React.SetStateAction<string>>; // Function to update filters
   setView: React.Dispatch<React.SetStateAction<"files" | "clusters">>;
 }
 
 const ClusterView: React.FC<ClusterViewProps> = ({
-  filters,
   setFilters,
   setView,
 }) => {

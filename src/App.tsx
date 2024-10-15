@@ -20,7 +20,6 @@ const App: React.FC = () => {
         <FileGrid filters={currentFilters} />
       ) : (
         <ClusterView
-          filters={currentFilters}
           setFilters={setCurrentFilters}
           setView={setCurrentView}
         />
