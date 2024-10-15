@@ -1,0 +1,54 @@
+/* ClusterView.module.css */
+
+.container {
+    padding: 20px;
+  }
+  
+  .loading {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .categoryContainer {
+    margin-bottom: 30px;
+  }
+  
+  .categoryTitle {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .gridContainer {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+  }
+  
+  .imageCard {
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .imageCard:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .imageCard img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+  }
+  
+  .noImagesFound {
+    text-align: center;
+    color: #777;
+    font-size: 1.2rem;
+  }
+  

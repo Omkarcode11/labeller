@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { key } from "../../utils/constant"; // Import your Pexels API key
+import styles from './ClusterView.module.css';
+
 
 interface ClusterViewProps {
   setFilters: React.Dispatch<React.SetStateAction<string>>; // Function to update filters
@@ -89,42 +91,34 @@ const ClusterView: React.FC<ClusterViewProps> = ({
   };
 
   return (
-    <div>
-      {loading && <h3>Loading images...</h3>}
-      {!loading &&
-        Object.entries(clusters).map(([category, items], index) => (
-          <div key={index}>
-            <h3>{category}</h3>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(5, 1fr)",
-                gap: "10px",
-              }}
-            >
-              {items.map((item, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    border: "1px solid #ddd",
-                    padding: "10px",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => handleCategoryClick(category)} // Handle category click
-                >
-                  <img
-                    src={item}
-                    alt={`${category} ${idx + 1}`}
-                    style={{ width: "100%" }}
-                  />
-                </div>
-              ))}
+ 
+      <div className={styles.container}>
+        {loading && <h3 className={styles.loading}>Loading images...</h3>}
+        {!loading &&
+          Object.entries(clusters).map(([category, items], index) => (
+            <div key={index} className={styles.categoryContainer}>
+              <h3 className={styles.categoryTitle}>{category}</h3>
+              <div className={styles.gridContainer}>
+                {items.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className={styles.imageCard}
+                    onClick={() => handleCategoryClick(category)}
+                  >
+                    <img
+                      src={item}
+                      alt={`${category} ${idx + 1}`}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      {!loading && Object.keys(clusters).length === 0 && <p>No images found</p>}
-    </div>
-  );
+          ))}
+        {!loading && Object.keys(clusters).length === 0 && (
+          <p className={styles.noImagesFound}>No images found</p>
+        )}
+      </div>
+    );
 };
 
 export default ClusterView;
