@@ -34,9 +34,7 @@ Make sure you have the following installed:
    Use `npm` to install the project dependencies:
 
    ```bash
-   # Using Yarn
-   yarn install
-   
+
    # OR using npm
    npm install
    ```
@@ -46,11 +44,10 @@ Make sure you have the following installed:
    You can run the project locally using the following command:
 
    ```bash
-   # Using Yarn
-   yarn dev
    
    # OR using npm
    npm run dev
+   
    ```
 
    After running this command, Vite will start the development server. You can open the project by visiting `http://localhost:5173` in your browser.
